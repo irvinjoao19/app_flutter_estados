@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import 'package:app_estados/models/usuario.dart';
+import 'package:app_estados/services/usuario_service.dart';
+
 class Pagina1Page extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -7,7 +10,18 @@ class Pagina1Page extends StatelessWidget {
       appBar: AppBar(
         title: Text('Pagina 1'),
       ),
-      body: InformacionUsuario(),
+      body: StreamBuilder(
+        stream: usuarioServices.usuarioStream,
+        builder: (BuildContext context, AsyncSnapshot<Usuario> snapshot) {
+          return snapshot.hasData
+              ? InformacionUsuario(snapshot.requireData)
+              : Center(child: Text('No hay información del usuario'));
+        },
+      ),
+
+      /* usuarioServices.existeUsuario
+          ? InformacionUsuario(usuarioServices.usuario)
+          : Center(child: Text('No hay información del usuario')), */
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.accessibility_new),
         onPressed: () => Navigator.pushNamed(context, 'pagina2'),
@@ -17,6 +31,9 @@ class Pagina1Page extends StatelessWidget {
 }
 
 class InformacionUsuario extends StatelessWidget {
+  final Usuario usuario;
+
+  const InformacionUsuario(this.usuario);
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -29,14 +46,17 @@ class InformacionUsuario extends StatelessWidget {
           Text('General',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           Divider(),
-          ListTile(title: Text('Nombre: ')),
-          ListTile(title: Text('Edad: ')),
+          ListTile(title: Text('Nombre: ${usuario.nombre}')),
+          ListTile(title: Text('Edad: ${usuario.edad}')),
           Text('Profesiones',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           Divider(),
-          ListTile(title: Text('Profesion1: ')),
-          ListTile(title: Text('Profesion2: ')),
-          ListTile(title: Text('Profesion3: ')),
+          ...usuario.profesiones!
+              .map((e) => ListTile(title: Text('Profesión: $e')))
+          //usuario.profesiones.map((e) => null)
+          //ListTile(title: Text('Profesion1: ')),
+          //ListTile(title: Text('Profesion2: ')),
+          //ListTile(title: Text('Profesion3: ')),
         ],
       ),
     );
